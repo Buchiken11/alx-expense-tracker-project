@@ -149,7 +149,8 @@ def display():
     print(session["username"], session['id'])
     
     cursor = mysql.connection.cursor()
-    cursor.execute('SELECT * FROM expenses WHERE userid = %s AND date ORDER BY DESC', (str(session['id']),))
+    # cursor.execute('SELECT * FROM expenses WHERE userid = %s AND date ORDER BY DESC', (str(session['id']),))
+    cursor.execute('SELECT * FROM expenses WHERE userid = %s ORDER BY date DESC', (str(session['id']),))
     expense = cursor.fetchall()
   
        
