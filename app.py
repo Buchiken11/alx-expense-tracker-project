@@ -10,9 +10,15 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager
+from config import Config
+from oauth import init_oauth
+from models import users
+from routes import setup_routes
 
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
 
 app.secret_key = 'a'
@@ -23,6 +29,24 @@ app.config['MYSQL_PASSWORD'] = 'buken.01'
 app.config['MYSQL_DB'] = 'bblexpense'
 
 mysql = MySQL(app)
+
+# setup_Flask_login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return users.get(user_id)
+
+# Initialize OAuth
+init_oauth(app)
+
+# Setup OAuth routes
+setup_routes(app)
+
+# Initialize OAuth within app context
+# with app.app_context():
+    # init_oauth(app)
 
 
 #HOME--PAGE
@@ -87,7 +111,7 @@ def signin():
     return render_template("login.html")
         
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def loggin():
     global userid
     msg = ''
    
@@ -113,6 +137,11 @@ def login():
 
     return render_template('login.html', msg=msg)
 
+# ABOUT PAGE
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 #ADDING----DATA
 
@@ -406,7 +435,7 @@ def year():
 
 @app.route('/logout')
 
-def logout():
+def loggout():
    session.pop('loggedin', None)
    session.pop('id', None)
    session.pop('username', None)
