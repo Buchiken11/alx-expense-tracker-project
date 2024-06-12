@@ -9,8 +9,8 @@ def init_oauth(app):
     # Register Google OAuth client
     oauth.register(
         name='google',
-#        client_id=app.config['498539836001-jndkm3uv65gugb5eg6l3m7idj35ve5o2.apps.googleusercontent.com'],
-#        client_secret=app.config['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'],
+        client_id=app.config['GOOGLE_CLIENT_ID'],
+        client_secret=app.config['CLIENT_SECRETE_KEY'],
         authorize_url='https://accounts.google.com/o/oauth2/auth',
         authorize_params=None,
         access_token_url='https://accounts.google.com/o/oauth2/token',
