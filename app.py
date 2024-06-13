@@ -11,14 +11,9 @@ import MySQLdb.cursors
 import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager
-from config import Config
-from oauth import init_oauth
-from models import users
-from routes import setup_routes
 
 
 app = Flask(__name__)
-app.config.from_object(Config)
 
 
 app.secret_key = 'a'
@@ -38,18 +33,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     return users.get(user_id)
 
-# Initialize OAuth
-init_oauth(app)
-
-# Setup OAuth routes
-setup_routes(app)
-
-# Initialize OAuth within app context
-# with app.app_context():
-    # init_oauth(app)
-
-
-#HOME--PAGE
+# HOME--PAGE
 @app.route("/home")
 def home():
     if 'loggedin' in session:
@@ -93,8 +77,6 @@ def register():
             msg = 'name must contain only characters and numbers !'
         else:
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-          #  cursor.execute('INSERT INTO register VALUES (NULL, % s, % s, % s)', (username, email,password))
-#            cursor.execute('INSERT INTO register (id, username, email, password) VALUES (%s, %s, %s)', (username, email, password))
             cursor.execute('INSERT INTO register (username, email, password) VALUES (%s, %s, %s)', (username, email, hashed_password))
             mysql.connection.commit()
             msg = 'You have successfully registered !'
@@ -120,10 +102,8 @@ def loggin():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.connection.cursor()
-#        cursor.execute('SELECT * FROM register WHERE username = % s AND password = % s', (username,))
         cursor.execute('SELECT * FROM register WHERE username = %s', (username,))
         account = cursor.fetchone()
-       # print (account)
         
         if account and check_password_hash(account[3], password):
             session['loggedin'] = True
@@ -162,11 +142,9 @@ def addexpense():
         category = request.form['category']
     
         cursor = mysql.connection.cursor()
-        # cursor.execute('INSERT INTO expenses VALUES (NULL,  % s, % s, % s, % s, % s, % s)', (session['id'] ,date, expensename, amount, paymode, category))
         cursor.execute('INSERT INTO expenses (userid, date, expensename, amount, paymode, category) VALUES (%s, %s, %s, %s, %s, %s)', (session['id'], date, expensename, amount, paymode, category))
         mysql.connection.commit()
-        print(date + " " + expensename + " " + amount + " " + paymode + " " + category)
-    
+        print(date + " " + expensename + " " + amount + " " + paymode + " " + category) 
     return redirect("/display")
 
 
@@ -178,7 +156,6 @@ def display():
     print(session["username"], session['id'])
     
     cursor = mysql.connection.cursor()
-    # cursor.execute('SELECT * FROM expenses WHERE userid = %s AND date ORDER BY DESC', (str(session['id']),))
     cursor.execute('SELECT * FROM expenses WHERE userid = %s ORDER BY date DESC', (str(session['id']),))
     expense = cursor.fetchall()
   
@@ -212,7 +189,7 @@ def edit(id):
     else:
         return "Expense not found", 404
    
-#   print(row[0])
+    print(row[0])
 #    return render_template('edit.html', expenses = row[0])
 
 
@@ -371,7 +348,7 @@ def month():
 
 
      
-      return render_template("today.html", texpense = texpense, expense = expense,  total = total ,
+      return render_template("month.html", texpense = texpense, expense = expense,  total = total ,
                            t_food = t_food,t_entertainment =  t_entertainment,
                            t_business = t_business,  t_rent =  t_rent, 
                            t_EMI =  t_EMI,  t_other =  t_other )
@@ -426,7 +403,7 @@ def year():
 
 
      
-      return render_template("today.html", texpense = texpense, expense = expense,  total = total ,
+      return render_template("year.html", texpense = texpense, expense = expense,  total = total ,
                            t_food = t_food,t_entertainment =  t_entertainment,
                            t_business = t_business,  t_rent =  t_rent, 
                            t_EMI =  t_EMI,  t_other =  t_other )
